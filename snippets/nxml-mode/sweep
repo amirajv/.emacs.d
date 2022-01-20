@@ -1,0 +1,4 @@
+# -*- mode: snippet -*-
+# name: sweep
+# --
+sweep="$0"
