@@ -21,13 +21,12 @@
 (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
       doom-themes-enable-italic t) ; if nil, italics is universally disabled
 (load-theme 'doom-dark+ t)
-(setq doom-themes-treemacs-theme "doom-atom") 
 (doom-themes-visual-bell-config) ;; Enable flashing mode-line on errors
 (setq org-fontify-done-headline t) ;; make any DONE heading grey
 (doom-themes-org-config) ;; Corrects (and improves) org-mode's native fontification.
 
 ;; eshell prompt
 (defun my-eshell-prompt-function ()
-  (concat "\xf07c " (eshell/pwd) "\n└─ $ " ))
+  (concat "\xf07b " (eshell/pwd) "\n└─ $ " ))
 (setq eshell-prompt-function 'my-eshell-prompt-function)
 
