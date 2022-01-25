@@ -1,5 +1,4 @@
 (require 'magit)
-(require 'git-link)
 (require 'yaml-mode)
 (require 'csv-mode)
 (require 'nxml-mode)
@@ -62,16 +61,9 @@
 ;; magit dependencies: dash, transient, with-editor, 
 ;; 11/11/21: libgit had some issues.
 ;; decided to remove it and indicate it in default.mk to not compile it
-(with-eval-after-load 'info
-  (info-initialize)
-  (add-to-list 'Info-directory-list
-               "~/.emacs.d/site-lisp/magit/Documentation/"))
 
 (setq magit-refresh-status-buffer nil) ;; to make things faster
 (remove-hook 'server-switch-hook 'magit-commit-diff) ;; to make things faster
-
-;; git-link
-(setq git-link-use-single-line-number nil)
 
 ;; python
 ;; elpy: dependencies: s.el, pyvenv, company, projectile, yasnippet

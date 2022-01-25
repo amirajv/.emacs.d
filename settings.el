@@ -43,9 +43,6 @@
 (setq backup-directory-alist `((".*" . ,temporary-file-directory)))
 (setq auto-save-file-name-transforms `((".*" ,temporary-file-directory t)))
 
-;; improve performance in files with long lines
-(global-so-long-mode 1)
-
 ;; It automatically makes files executable that look like they are scripts. (Start with #!/some/interpreter)
 (add-hook 'after-save-hook 'executable-make-buffer-file-executable-if-script-p)
 

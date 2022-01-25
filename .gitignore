@@ -14,6 +14,8 @@ env.bak/
 venv.bak/
 build/
 /elpy/
+/elpa/
+/eshell/
 /from_others/
 /recentf
 /transient/

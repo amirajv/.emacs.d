@@ -2,13 +2,11 @@
 (require 'doom-themes)
 (require 'doom-themes-ext-org)
 (require 'doom-themes-ext-visual-bell)
-(require 'doom-themes-ext-neotree)
 (require 'all-the-icons)
 (require 'all-the-icons-dired)
 
 ;; all the icons
 ;; note: fonts should be installed too
-;; dependencies: memoize
 
 (add-hook 'dired-mode-hook 'all-the-icons-dired-mode)
 
@@ -23,7 +21,8 @@
 (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
       doom-themes-enable-italic t) ; if nil, italics is universally disabled
 (load-theme 'doom-dark+ t)
-;; (doom-themes-visual-bell-config) ;; Enable flashing mode-line on errors
+(setq doom-themes-treemacs-theme "doom-atom") 
+(doom-themes-visual-bell-config) ;; Enable flashing mode-line on errors
 (setq org-fontify-done-headline t) ;; make any DONE heading grey
 (doom-themes-org-config) ;; Corrects (and improves) org-mode's native fontification.
 

@@ -23,7 +23,7 @@
 
 
 ;; libraries
-(let ((default-directory  "~/.emacs.d/site-lisp/")) 
+(let ((default-directory  "~/.emacs.d/lib/")) 
   (normal-top-level-add-to-load-path '("."))
   (normal-top-level-add-subdirs-to-load-path))
 

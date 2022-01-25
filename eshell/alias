@@ -6,9 +6,7 @@ alias d dired $1
 alias ee find-file-other-window $1
 alias ff find-file $1
 alias mkdir mkdir -p $1
-alias du du -sh * | sort -h
 alias ..... cd ../../../..
 alias .... cd ../../..
 alias ... cd ../..
 alias .. cd ..
-
