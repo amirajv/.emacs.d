@@ -58,3 +58,15 @@
 [submodule "lib/git-modes"]
 	path = lib/git-modes
 	url = https://github.com/magit/git-modes.git
+[submodule "lib/s"]
+	path = lib/s
+	url = https://github.com/magnars/s.el.git
+[submodule "lib/company-mode"]
+	path = lib/company-mode
+	url = https://github.com/company-mode/company-mode.git
+[submodule "lib/pyvenv"]
+	path = lib/pyvenv
+	url = https://github.com/jorgenschaefer/pyvenv.git
+[submodule "lib/highlight-indentation"]
+	path = lib/highlight-indentation
+	url = https://github.com/antonj/Highlight-Indentation-for-Emacs.git
