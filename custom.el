@@ -56,33 +56,33 @@ matches. This seems to be more helpful to me."
 (defhydra general-operations-menu (:color blue
                                    :hint nil)
   "
-
-^Projectile^          ^Config files^             ^Org files^          ^Other^           
+^Projectile^          ^Config files^             ^Web^             
 ─────────────────────────────────────────────────────────────────────────────────────────
-_p_: project          _._: .cshrc.local          _o_: scratch         _y_: ipython      
-_f_: file             _i_: .emacs.d              _t_: tutorial        _@_: git link     
-_d_: directory        _a_: eshell aliases        _+_: C++             _/_: path conversion            
-_g_: grep             _s_: eshell snippets       ^ ^                  _c_: copy file path
-_q_: kill buffers     _!_: load buffer           ^ ^                  ^ ^               
+_p_: project          _._: .cshrc.local          _y_: ipython      
+_f_: file             _i_: .emacs.d              _@_: git link     
+_d_: directory        _a_: eshell aliases        _j_: jupyter-lab  
+_g_: grep             _s_: eshell snippets       _c_: copy file path
+_q_: kill buffers     _!_: load elisp buffer     _o_: org documents
+_r_: reset cache      ^ ^                        
 "
   ("p" projectile-switch-project)
   ("f" projectile-find-file)
   ("d" projectile-find-dir)
   ("g" projectile-grep)
   ("q" projectile-kill-buffers)
+  ("r" projectile-invalidate-cache)
   ("." (find-file "~/.cshrc.local")) 
   ("i" (find-file "~/.emacs.d"))
   ("a" (find-file "~/.emacs.d/eshell/alias"))
   ("s" (find-file "~/.emacs.d/snippets/eshell-mode"))
   ("!" (load-file (buffer-file-name)))
-  ("o" (find-file "~/org/scratch.org"))
-  ("t" (find-file "~/org/tutorial.org"))
-  ("+" (find-file "~/org/cpp.org"))
+  ("o" (find-file "~/org/"))
   ("y" (async-shell-command "ipython --simple-prompt -i"))
+  ("j" (async-shell-command "jupyter-lab" (generate-new-buffer "jupyter-lab")))
   ("@" git-link)
-  ("/" windows-linux-path-convert)
   ("c" my-put-file-name-on-clipboard)
 )
+
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

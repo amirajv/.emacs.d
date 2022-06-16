@@ -21,7 +21,6 @@
  ;; If there is more than one, they won't work right.
  )
 
-
 ;; libraries
 (let ((default-directory  "~/.emacs.d/lib/")) 
   (normal-top-level-add-to-load-path '("."))

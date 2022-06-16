@@ -5,6 +5,7 @@
 (require 'hydra)
 (require 'dired )
 (require 'yasnippet)
+(require 'company)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; general
@@ -45,6 +46,9 @@
 
 ;; It automatically makes files executable that look like they are scripts. (Start with #!/some/interpreter)
 (add-hook 'after-save-hook 'executable-make-buffer-file-executable-if-script-p)
+
+;; improve performance in files with long lines
+(global-so-long-mode 1)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; general package configs
@@ -93,7 +97,6 @@
 (add-hook 'ediff-quit-hook 'my-kill-ediff-buffers)
 
 ;; company: complete anything
-(load "company")
 (setq company-global-modes '(not eshell-mode)) ;; specially since company is interfering with ivy in eshell mode and slowing things down
 (add-hook 'after-init-hook 'global-company-mode)
 (global-set-key (kbd "C-.") 'company-complete)

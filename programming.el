@@ -1,4 +1,5 @@
 (require 'magit)
+(require 'git-link)
 (require 'yaml-mode)
 (require 'csv-mode)
 (require 'nxml-mode)
@@ -11,6 +12,9 @@
 (require 'gitignore-mode)
 (require 'gitconfig-mode)
 (require 'gitattributes-mode)
+
+;; git-link
+(setq git-link-use-single-line-number nil)
 
 ;; c/c++
 (setq c-default-style
@@ -82,7 +86,8 @@
 (load "elpy-django")
 (elpy-enable)
 
-(defalias 'workon 'pyvenv-workon)
+(setq elpy-rpc-virtualenv-path 'system) ;; system virtual env is designated using WORKON_HOME variable
+(remove-hook 'flymake-diagnostic-functions 'flymake-proc-legacy-flymake)
 
 ;; ipython
 (setq python-shell-interpreter "ipython"
