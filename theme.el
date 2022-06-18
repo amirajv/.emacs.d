@@ -26,8 +26,8 @@
 (doom-themes-org-config) ;; Corrects (and improves) org-mode's native fontification.
 
 ;; eshell prompt
-(defun my-eshell-prompt-function ()
-  (concat "\xf07b " (eshell/pwd) "\n└─ $ " ))
+;; (defun my-eshell-prompt-function () (concat "\xf07b " (eshell/pwd) "\n└─ $ " ))
+(defun my-eshell-prompt-function () (concat (all-the-icons-faicon  "folder") " " (eshell/pwd) "\n└─ $ " ))
 (setq eshell-prompt-function 'my-eshell-prompt-function)
 
 ;; global font: use Adobe Source Code Pro
