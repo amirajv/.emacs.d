@@ -12,7 +12,8 @@
  ;; If there is more than one, they won't work right.
  '(ediff-diff-options "-w" t)
  '(ediff-split-window-function 'split-window-horizontally)
- '(ediff-window-setup-function 'ediff-setup-windows-plain))
+ '(ediff-window-setup-function 'ediff-setup-windows-plain)
+ '(package-selected-packages '(ivy projectile doom-modeline magit elpy)))
 
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
@@ -26,6 +27,9 @@
   (normal-top-level-add-to-load-path '("."))
   (normal-top-level-add-subdirs-to-load-path))
 
+;; Melpa
+(require 'package)
+(add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
 
 ;; load other el files
 (load-file "~/.emacs.d/theme.el")

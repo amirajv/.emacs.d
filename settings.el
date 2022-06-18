@@ -11,6 +11,12 @@
 ;; general
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;; open maximized on startup
+(add-to-list 'default-frame-alist '(fullscreen . maximized))
+
+;; open .emacs.d on startup
+(setq default-directory "~/.emacs.d")
+
 ;; misc
 (setq default-tab-width 2)
 (setq-default indent-tabs-mode nil)

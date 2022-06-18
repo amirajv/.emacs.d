@@ -49,6 +49,7 @@
 (add-hook 'org-shiftleft-final-hook 'windmove-left)
 (add-hook 'org-shiftdown-final-hook 'windmove-down)
 (add-hook 'org-shiftright-final-hook 'windmove-right)
+(add-hook 'org-mode-hook 'org-indent-mode)
 (setq org-support-shift-select 'always)
 
 ;; projectile
@@ -74,19 +75,18 @@
 ;; note: to reinstall rpc venv:
 ;; M-x elpy-rpc-reinstall-virtualenv
 
+;; python virtual environment
+(setenv "WORKON_HOME" "c:/Users/amirj/Anaconda3/envs/")
+(pyvenv-mode 1)
+;; (pyvenv-activate "venv")
+
 (load "highlight-indentation")
 (set-face-background 'highlight-indentation-face "gray20")
 (set-face-background 'highlight-indentation-current-column-face "#c3b3b3")
 
-(load "elpy")
-(load "elpy-rpc")
-(load "elpy-shell")
-(load "elpy-profile")
-(load "elpy-refactor")
-(load "elpy-django")
 (elpy-enable)
 
-(setq elpy-rpc-virtualenv-path 'system) ;; system virtual env is designated using WORKON_HOME variable
+(setq elpy-rpc-virtualenv-path "c:/Users/amirj/Anaconda3/envs/venv/venv/")
 (remove-hook 'flymake-diagnostic-functions 'flymake-proc-legacy-flymake)
 
 ;; ipython
