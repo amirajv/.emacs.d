@@ -13,7 +13,8 @@
  '(ediff-diff-options "-w" t)
  '(ediff-split-window-function 'split-window-horizontally)
  '(ediff-window-setup-function 'ediff-setup-windows-plain)
- '(package-selected-packages '(ivy projectile doom-modeline magit elpy)))
+ '(package-selected-packages
+   '(ivy projectile doom-modeline magit elpy)))
 
 (custom-set-faces
  ;; custom-set-faces was added by Custom.

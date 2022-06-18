@@ -15,7 +15,7 @@
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
 
 ;; open .emacs.d on startup
-(setq default-directory "~/.emacs.d")
+(setq default-directory "~/.emacs.d/")
 
 ;; misc
 (setq default-tab-width 2)
