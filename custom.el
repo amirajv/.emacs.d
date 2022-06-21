@@ -49,6 +49,14 @@ matches. This seems to be more helpful to me."
         (eshell/f (concat "*" filename) dir 2))
        (t "")))))
 
+(defun run-web-server ()
+  (interactive)
+  (let ((port) (output-buffer))
+    (setq port (read-string "Set a port: " "9001"))
+    (setq output-buffer (generate-new-buffer (format "*Web Server --- Port %s*" port)))
+    (async-shell-command (concat "~/server/server.py --port " port) output-buffer)
+    ))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; hydra
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -63,7 +71,7 @@ _f_: file             _i_: .emacs.d              _@_: git link
 _d_: directory        _a_: eshell aliases        _j_: jupyter-lab  
 _g_: grep             _s_: eshell snippets       _c_: copy file path
 _q_: kill buffers     _!_: load elisp buffer     _o_: org documents
-_r_: reset cache      ^ ^                        
+_r_: reset cache      ^ ^                        _w_: web server
 "
   ("p" projectile-switch-project)
   ("f" projectile-find-file)
@@ -81,9 +89,8 @@ _r_: reset cache      ^ ^
   ("j" (async-shell-command "jupyter-lab" (generate-new-buffer "jupyter-lab")))
   ("@" git-link)
   ("c" my-put-file-name-on-clipboard)
+  ("w" run-web-server)
 )
-
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; key bindings

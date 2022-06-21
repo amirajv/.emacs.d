@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: img
+# key: img
+# --
+[[${1:link}]]
