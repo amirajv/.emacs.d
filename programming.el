@@ -51,6 +51,7 @@
 (add-hook 'org-shiftright-final-hook 'windmove-right)
 (add-hook 'org-mode-hook 'org-indent-mode)
 (setq org-support-shift-select 'always)
+(setq org-startup-truncated 'nil)
 
 ;; projectile
 (projectile-mode +1)

@@ -1,7 +1,6 @@
 *.elc
 .cask
 *~
-*.~undo-tree
 __pycache__/
 *.py[cod]
 .env
@@ -16,7 +15,6 @@ build/
 /elpy/
 /elpa/
 /eshell/
-/from_others/
 /recentf
 /transient/
 /projectile.cache

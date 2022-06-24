@@ -49,12 +49,13 @@ matches. This seems to be more helpful to me."
         (eshell/f (concat "*" filename) dir 2))
        (t "")))))
 
+;; FIXME: This does not work in microsoft windows
 (defun run-web-server ()
   (interactive)
   (let ((port) (output-buffer))
     (setq port (read-string "Set a port: " "9001"))
     (setq output-buffer (generate-new-buffer (format "*Web Server --- Port %s*" port)))
-    (async-shell-command (concat "~/server/server.py --port " port) output-buffer)
+    (async-shell-command (concat "python " "~/server/server.py --port " port) output-buffer)
     ))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
