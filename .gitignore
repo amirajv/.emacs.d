@@ -17,6 +17,7 @@ build/
 /eshell/
 /recentf
 /transient/
+/server/
 /projectile.cache
 *-autoloads.el
 

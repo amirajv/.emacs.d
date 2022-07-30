@@ -15,7 +15,7 @@
  '(ediff-window-setup-function 'ediff-setup-windows-plain)
  '(org-startup-truncated nil)
  '(package-selected-packages
-   '(doom-themes ivy projectile doom-modeline magit elpy))
+   '(all-the-icons-dired hydra all-the-icons doom-themes ivy projectile doom-modeline magit elpy))
  '(warning-suppress-types '(((unlock-file)))))
 
 (custom-set-faces
