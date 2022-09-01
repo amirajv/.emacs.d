@@ -1,4 +1,12 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; some global variables
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(if (string-equal system-type "windows-nt")
+    (setq python-web-server "C:\\server\\server.py")
+  (setq python-web-server "~/server/server.py"))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; general functions
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -49,13 +57,13 @@ matches. This seems to be more helpful to me."
         (eshell/f (concat "*" filename) dir 2))
        (t "")))))
 
-;; FIXME: This does not work in microsoft windows
 (defun run-web-server ()
   (interactive)
-  (let ((port) (output-buffer))
+  (let ((port) (host) (output-buffer))
     (setq port (read-string "Set a port: " "9001"))
+    (setq host (read-string "Host: (localhost or machine) " "localhost"))
     (setq output-buffer (generate-new-buffer (format "*Web Server --- Port %s*" port)))
-    (async-shell-command (concat "python " "~/server/server.py --port " port) output-buffer)
+    (async-shell-command (concat "python " python-web-server " --port " port " --host " host) output-buffer)
     ))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
