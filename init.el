@@ -26,6 +26,3 @@
 (load-file "~/.emacs.d/programming.el")
 (load-file "~/.emacs.d/custom.el")
 (load-file "~/.emacs.d/django.el")
-
-;; load company related el files
-(load-file "~/.emacs.d/apple.el")
