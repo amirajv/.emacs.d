@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: enumerate
+# key: enum
+# group: Definitions
+# --
+for ${1:idx}, ${2:val} in enumerate(${3:arr}):
+    $0

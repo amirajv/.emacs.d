@@ -15,7 +15,7 @@
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
 
 ;; open .emacs.d on startup
-(setq default-directory "~/.emacs.d/")
+(setq default-directory "~")
 
 ;; misc
 (setq default-tab-width 2)
@@ -56,6 +56,13 @@
 ;; improve performance in files with long lines
 (global-so-long-mode 1)
 
+;; mac os configs
+;; key bindings
+(when (eq system-type 'darwin) ;; mac specific settings
+  (setq mac-command-modifier 'meta)
+  (setq mac-option-modifier 'alt)
+  )
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; general package configs
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -92,6 +99,8 @@
 (winner-mode)
 (add-hook 'ediff-after-quit-hook-internal 'winner-undo)
 (setq ediff-diff-options "-w") ;; ignore white space changes
+(setq ediff-split-window-function 'split-window-horizontally)
+(setq ediff-window-setup-function 'ediff-setup-windows-plain)
 
 (defun my-kill-ediff-buffers ()
   ;; (kill-buffer ediff-buffer-A)

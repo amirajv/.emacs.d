@@ -73,12 +73,11 @@
 
 ;; python
 ;; elpy: dependencies: s.el, pyvenv, company, projectile, yasnippet
-
-;; install a virtual environment using M-x pyvenv-create
+;; config: M-x elpy-config
+;; create a virtual environment
 
 ;; python virtual environment
-(defalias 'workon 'pyvenv-workon)
-(setenv "WORKON_HOME" "c:/Users/amirj/Anaconda3/envs/venv/")
+(setenv "WORKON_HOME" "~/.venv/")
 (pyvenv-mode 1)
 
 (load "highlight-indentation")
@@ -86,8 +85,8 @@
 (set-face-background 'highlight-indentation-current-column-face "#c3b3b3")
 
 (elpy-enable)
-(setq elpy-rpc-python-command "c:/Users/amirj/Anaconda3/envs/venv/venv/Scripts/python.exe")
-(setq elpy-rpc-virtualenv-path 'current) ;; use currently activated virtual env
+(setq elpy-rpc-python-command "~/.venv/bin/python")
+(setq elpy-rpc-virtualenv-path 'current)
 (remove-hook 'flymake-diagnostic-functions 'flymake-proc-legacy-flymake)
 
 ;; ipython

@@ -1,4 +1,0 @@
-# -*- mode: snippet -*-
-# name: zip
-# --
-<SERIALIZER_COMPRESS_ALL>false</SERIALIZER_COMPRESS_ALL>

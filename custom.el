@@ -1,10 +1,39 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; some global variables
+;; http server
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(if (string-equal system-type "windows-nt")
-    (setq python-web-server "C:\\server\\server.py")
-  (setq python-web-server "~/server/server.py"))
+(setq python-web-server "~/code/http-server/server.py")
+
+(defun run-web-server ()
+  (interactive)
+  (let ((port) (output-buffer))
+    (setq port (read-string "Set a port: " "8080"))
+    (setq output-buffer (generate-new-buffer (format "*Web Server --- Port %s*" port)))
+    (async-shell-command (concat "python " python-web-server " --port " port) output-buffer)
+    ))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; finding files and roots
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defun parent-directory (dir)
+  (unless (equal "/" dir)
+    (file-name-directory (directory-file-name dir))))
+
+(defun find-root-in-heirarchy (current-dir)
+  "template founction to walk up and search for a number of files \
+   through the directory hierarchy, starting from CURRENT-DIR" 
+  (if (and (file-exists-p (concat current-dir "fname1"))
+           (file-exists-p (concat current-dir "fname2")))
+      current-dir
+    (when (parent-directory (expand-file-name current-dir))
+      (find-root-in-heirarchy (parent-directory (expand-file-name current-dir))))))
+
+(defun run-command-in-directory (command directory &optional buffer-name)
+  (if buffer-name
+      (async-shell-command (concat "cd " directory "; " command) (generate-new-buffer buffer-name))
+    (async-shell-command (concat "cd " directory "; " command))))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; general functions
@@ -25,6 +54,10 @@
         (clipboard-kill-region (point-min) (point-max)))
       (message filename))))
 
+(defun revert-buffer-no-confirm ()
+    "Revert buffer without confirmation."
+    (interactive)
+    (revert-buffer :ignore-auto :noconfirm))
 
 (defun eshell/f (filename &optional dir try-count)
   "Searches for files matching FILENAME in either DIR or the
@@ -57,15 +90,6 @@ matches. This seems to be more helpful to me."
         (eshell/f (concat "*" filename) dir 2))
        (t "")))))
 
-(defun run-web-server ()
-  (interactive)
-  (let ((port) (host) (output-buffer))
-    (setq port (read-string "Set a port: " "9001"))
-    (setq host (read-string "Host: (localhost or machine) " "localhost"))
-    (setq output-buffer (generate-new-buffer (format "*Web Server --- Port %s*" port)))
-    (async-shell-command (concat "python " python-web-server " --port " port " --host " host) output-buffer)
-    ))
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; hydra
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -73,14 +97,14 @@ matches. This seems to be more helpful to me."
 (defhydra general-operations-menu (:color blue
                                    :hint nil)
   "
-^Projectile^          ^Config files^             ^Web^             
-─────────────────────────────────────────────────────────────────────────────────────────
-_p_: project          _._: .cshrc.local          _y_: ipython      
-_f_: file             _i_: .emacs.d              _@_: git link     
-_d_: directory        _a_: eshell aliases        _j_: jupyter-lab  
-_g_: grep             _s_: eshell snippets       _c_: copy file path
-_q_: kill buffers     _!_: load elisp buffer     _o_: org documents
-_r_: reset cache      ^ ^                        _w_: web server
+^Projectile^          ^Scripting^              ^Files^
+──────────────────────────────────────────────────────────────────────────────────────
+_p_: project          _w_: web server          _c_: copy file path   
+_f_: file             _@_: git link            _t_: del trailing whitespace
+_d_: directory        _j_: jupyter-lab         _!_: load elisp buffer
+_g_: grep             _y_: ipython             _i_: .emacs.d
+_q_: kill buffers     _v_: virtual env         _R_: revert buffer
+_r_: reset cache      ^ ^                      ^ ^
 "
   ("p" projectile-switch-project)
   ("f" projectile-find-file)
@@ -88,17 +112,16 @@ _r_: reset cache      ^ ^                        _w_: web server
   ("g" projectile-grep)
   ("q" projectile-kill-buffers)
   ("r" projectile-invalidate-cache)
-  ("." (find-file "~/.cshrc.local")) 
-  ("i" (find-file "~/.emacs.d"))
-  ("a" (find-file "~/.emacs.d/eshell/alias"))
-  ("s" (find-file "~/.emacs.d/snippets/eshell-mode"))
-  ("!" (load-file (buffer-file-name)))
-  ("o" (find-file "~/org/"))
-  ("y" (async-shell-command "ipython --simple-prompt -i"))
-  ("j" (async-shell-command "jupyter-lab" (generate-new-buffer "jupyter-lab")))
-  ("@" git-link)
-  ("c" my-put-file-name-on-clipboard)
   ("w" run-web-server)
+  ("@" git-link)
+  ("y" (async-shell-command "ipython --simple-prompt -i" (generate-new-buffer "*iPython*")))
+  ("j" (async-shell-command "jupyter-lab" (generate-new-buffer "jupyter-lab")))
+  ("v" pyvenv-workon)
+  ("c" my-put-file-name-on-clipboard)
+  ("t" delete-trailing-whitespace)
+  ("!" (load-file (buffer-file-name)))
+  ("i" (find-file "~/.emacs.d"))
+  ("R" revert-buffer-no-confirm)
 )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

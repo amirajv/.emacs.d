@@ -31,4 +31,4 @@
 (setq eshell-prompt-function 'my-eshell-prompt-function)
 
 ;; global font: use Adobe Source Code Pro
-(set-frame-font "-outline-Source Code Pro-normal-normal-normal-mono-16-*-*-*-c-*-iso10646-1" nil t)
+(set-frame-font "-outline-Source Code Pro-normal-normal-normal-mono-14-*-*-*-c-*-iso10646-1" nil t)

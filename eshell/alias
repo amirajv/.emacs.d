@@ -5,7 +5,9 @@ alias d dired $1
 alias ee find-file-other-window $1
 alias ff find-file $1
 alias mkdir mkdir -p $1
+alias ...... cd ../../../../..
 alias ..... cd ../../../..
 alias .... cd ../../..
 alias ... cd ../..
 alias .. cd ..
+alias grep grep -r -s -I $1
