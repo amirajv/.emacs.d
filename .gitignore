@@ -1,23 +1,46 @@
+# byte/native compilation
 *.elc
-.cask
+*.eln
+/eln-cache/
+
+# package.el
+/elpa/
+*-autoloads.el
+
+# editor backups and state
 *~
+\#*\#
+.\#*
+/auto-save-list/
+/recentf
+/history
+/savehist
+/places
+/session.*
+/tramp
+/.emacs-places
+/.lsp-session-*
+/projectile-bookmarks.eld
+/projectile.cache
+/transient/
+/server/
+/network-security.data
+/.cache/
+*.eld
+
+# eshell (no longer used, ignore any leftover state)
+/eshell/
+
+# python
 __pycache__/
 *.py[cod]
 .env
 .venv
-*.eld
 env/
 venv/
 ENV/
 env.bak/
 venv.bak/
-build/
 /elpy/
-/elpa/
-/eshell/
-/recentf
-/transient/
-/server/
-/projectile.cache
-*-autoloads.el
-
+build/
+.cask

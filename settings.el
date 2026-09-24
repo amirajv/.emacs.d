@@ -1,151 +1,238 @@
-(require 'buffer-move)
-(require 'ivy)
-(require 'counsel)
-(require 'swiper)
-(require 'hydra)
-(require 'dired )
-(require 'yasnippet)
-(require 'company)
+;;; settings.el --- general settings and package configuration  -*- lexical-binding: t; -*-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; general
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; open maximized on startup
-(add-to-list 'default-frame-alist '(fullscreen . maximized))
+;; GUI launches (Dock/Spotlight) don't inherit the shell's PATH, so tools in
+;; ~/.local/bin (claude, ...) and ~/.venv/bin would not be found.  PATH is set
+;; in ~/.zshrc, so the shell has to be interactive (-i) to see it.  Must run
+;; before anything calls `executable-find'.
+(use-package exec-path-from-shell
+  :ensure t
+  :if (memq window-system '(mac ns))
+  :custom
+  (exec-path-from-shell-arguments '("-l" "-i"))
+  :config
+  (exec-path-from-shell-initialize))
 
-;; open .emacs.d on startup
-(setq default-directory "~")
+;; open maximized on startup.  The initial frame already exists by the time
+;; this file is loaded, so `default-frame-alist' only covers later frames.
+(add-to-list 'default-frame-alist '(fullscreen . maximized))
+(when (display-graphic-p)
+  (modify-frame-parameters nil '((fullscreen . maximized))))
+
+;; GUI launches (Dock/Spotlight) start in "/", so start in the home directory
+(setq default-directory "~/")
 
 ;; misc
-(setq default-tab-width 2)
-(setq-default indent-tabs-mode nil)
-(setq inhibit-startup-screen t)
-(defalias 'yes-or-no-p 'y-or-n-p)
-(setq visible-bell 1)
+(setq-default tab-width 2
+              indent-tabs-mode nil)
+(setq inhibit-startup-screen t
+      use-short-answers t
+      require-final-newline t
+      ;; run new async shell commands in a fresh buffer without asking
+      async-shell-command-buffer 'new-buffer)
 (show-paren-mode 1)
 (delete-selection-mode 1)
 
-;; scroll, tool, menu bar
+;; scroll, tool, menu bar.  early-init.el already hides them on GUI frames; these
+;; calls keep the mode variables in sync (so the first toggle does what it says)
+;; and cover terminal frames.
 (scroll-bar-mode -1)
 (tool-bar-mode -1)
 (menu-bar-mode -1)
 
-;; smooth scroll
-;; Vertical Scroll
-(setq scroll-step 1)
-(setq scroll-margin 5)
-(setq scroll-conservatively 101)
-(setq scroll-up-aggressively 0.01)
-(setq scroll-down-aggressively 0.01)
-(setq auto-window-vscroll nil)
-(setq fast-but-imprecise-scrolling nil)
-(setq mouse-wheel-scroll-amount '(1 ((shift) . 1)))
-(setq mouse-wheel-progressive-speed nil)
-(setq hscroll-step 1)
-(setq hscroll-margin 1)
+;; show the available keys after a prefix (C-c p, C-c w, C-x, ...)
+(use-package which-key
+  :ensure nil
+  :hook (after-init . which-key-mode))
 
-;; turn off backup files
-(setq make-backup-files nil)
-(setq backup-directory-alist `((".*" . ,temporary-file-directory)))
-(setq auto-save-file-name-transforms `((".*" ,temporary-file-directory t)))
+;; smooth scrolling
+(pixel-scroll-precision-mode 1)
+(setq scroll-margin 5
+      scroll-conservatively 101 ;; never recenter the point when scrolling
+      auto-window-vscroll nil
+      mouse-wheel-progressive-speed nil
+      hscroll-step 1
+      hscroll-margin 1)
 
-;; It automatically makes files executable that look like they are scripts. (Start with #!/some/interpreter)
-(add-hook 'after-save-hook 'executable-make-buffer-file-executable-if-script-p)
+;; no backup files; auto-save files go to the temp directory, not next to the
+;; original
+(setq make-backup-files nil
+      auto-save-file-name-transforms `((".*" ,temporary-file-directory t)))
+
+;; automatically make files that start with #! executable when saving
+(add-hook 'after-save-hook #'executable-make-buffer-file-executable-if-script-p)
 
 ;; improve performance in files with long lines
 (global-so-long-mode 1)
 
-;; mac os configs
-;; key bindings
-(when (eq system-type 'darwin) ;; mac specific settings
-  (setq mac-command-modifier 'meta)
-  (setq mac-option-modifier 'alt)
-  )
+;; remember minibuffer history, point position in files, and pick up
+;; changes made to files on disk
+(savehist-mode 1)
+(save-place-mode 1)
+(setopt global-auto-revert-non-file-buffers t)
+(global-auto-revert-mode 1)
+
+;; mac os: modifier keys.  The NS port (Emacs.app, homebrew emacs-app) uses the
+;; `ns-*' variables; the emacs-mac port uses the `mac-*' ones.
+;; Cmd is Meta.  Option is the (otherwise unused) Alt modifier, which means it no
+;; longer types macOS special characters; set it to `none' to get those back.
+(when (eq system-type 'darwin)
+  (cond ((featurep 'ns)
+         (setq ns-command-modifier 'meta
+               ns-alternate-modifier 'alt))
+        ((boundp 'mac-command-modifier)
+         (setq mac-command-modifier 'meta
+               mac-option-modifier 'alt))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; general package configs
+;; windows
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; buffer-move
-(global-set-key (kbd "<C-S-up>")     'buf-move-up)
-(global-set-key (kbd "<C-S-down>")   'buf-move-down)
-(global-set-key (kbd "<C-S-left>")   'buf-move-left)
-(global-set-key (kbd "<C-S-right>")  'buf-move-right)
+(use-package buffer-move
+  :ensure t
+  :bind (("<C-S-up>"    . buf-move-up)
+         ("<C-S-down>"  . buf-move-down)
+         ("<C-S-left>"  . buf-move-left)
+         ("<C-S-right>" . buf-move-right)))
 
-;; wind move: Now you can use shift+arrows to jump between windows.
-(when (fboundp 'windmove-default-keybindings)
-  (windmove-default-keybindings))
+;; windmove: shift+arrows jump between windows
+(windmove-default-keybindings 'shift)
 
-;; swiper
-;; needs a compile. 
+;; winner: undo/redo window configurations (C-c <left> / C-c <right>)
+(winner-mode 1)
 
-;; ivy
-(ivy-mode 1)
-(setq ivy-use-virtual-buffers t)
-(setq ivy-count-format "(%d/%d) ")
-(global-set-key (kbd "M-x") 'counsel-M-x)
-(global-set-key (kbd "C-x C-f") 'counsel-find-file)
-(global-set-key (kbd "C-x b") 'ivy-switch-buffer)
-(global-set-key (kbd "C-s") 'swiper-isearch)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; completion: ivy, counsel, swiper, company, yasnippet
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; recentf
-(recentf-mode 1)
-(setq recentf-max-menu-items 25)
-(setq recentf-max-saved-items 25)
-(global-set-key (kbd "C-x C-r") 'recentf-open-files)
+(use-package ivy
+  :ensure t
+  :demand t
+  :custom
+  (ivy-use-virtual-buffers t)
+  (ivy-count-format "(%d/%d) ")
+  :config
+  (ivy-mode 1))
 
-;; ediff
-(winner-mode)
-(add-hook 'ediff-after-quit-hook-internal 'winner-undo)
-(setq ediff-diff-options "-w") ;; ignore white space changes
-(setq ediff-split-window-function 'split-window-horizontally)
-(setq ediff-window-setup-function 'ediff-setup-windows-plain)
+;; `counsel-mode' remaps M-x, C-x C-f, describe-*, yank-pop, etc. to their
+;; counsel versions; `ivy-mode' already remaps C-x b to `ivy-switch-buffer'.
+(use-package counsel
+  :ensure t
+  :demand t
+  :after ivy
+  :config
+  (counsel-mode 1))
 
-(defun my-kill-ediff-buffers ()
-  ;; (kill-buffer ediff-buffer-A)
-  ;; (kill-buffer ediff-buffer-B)
-  ;; (kill-buffer ediff-buffer-C)
-  (kill-buffer "*Ediff Registry*"))
-  ;; (kill-buffer "*ediff-errors*")
-  ;; (kill-buffer "*ediff-diff*"))
-(add-hook 'ediff-quit-hook 'my-kill-ediff-buffers)
+(use-package swiper
+  :ensure t
+  :bind ("C-s" . swiper-isearch))
+
+;; hydra: also used by the defhydra menus in custom.el and django.el
+(use-package hydra
+  :ensure t
+  :demand t)
 
 ;; company: complete anything
-(setq company-global-modes '(not eshell-mode)) ;; specially since company is interfering with ivy in eshell mode and slowing things down
-(add-hook 'after-init-hook 'global-company-mode)
-(global-set-key (kbd "C-.") 'company-complete)
+(use-package company
+  :ensure t
+  :hook (after-init . global-company-mode)
+  :bind ("C-." . company-complete)
+  :custom
+  ;; completion popups make no sense in a terminal buffer
+  (company-global-modes '(not vterm-mode)))
 
-;; yasnippet
-(yas-global-mode 1)
+(use-package yasnippet
+  :ensure t
+  :demand t
+  :custom
+  (yas-snippet-dirs (list (expand-file-name "snippets" user-emacs-directory)))
+  :config
+  (yas-global-mode 1))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; recentf
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(use-package recentf
+  :ensure nil
+  :demand t
+  :custom
+  (recentf-max-menu-items 25)
+  (recentf-max-saved-items 200)
+  :bind ("C-x C-r" . recentf-open-files)
+  :config
+  (recentf-mode 1))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; ediff
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defun my-kill-ediff-buffers ()
+  "Kill the leftover *Ediff Registry* buffer after an ediff session."
+  (when-let* ((buf (get-buffer "*Ediff Registry*")))
+    (kill-buffer buf)))
+
+(use-package ediff
+  :ensure nil
+  :defer t
+  :custom
+  (ediff-diff-options "-w") ;; ignore white space changes
+  (ediff-split-window-function #'split-window-horizontally)
+  (ediff-window-setup-function #'ediff-setup-windows-plain)
+  :config
+  ;; restore the window layout from before ediff started
+  (add-hook 'ediff-after-quit-hook-internal #'winner-undo)
+  (add-hook 'ediff-quit-hook #'my-kill-ediff-buffers))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; dired
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(setq dired-listing-switches "-aBhl  --group-directories-first")
+;; `--group-directories-first' needs GNU ls (coreutils' gls).  Without it, fall
+;; back to the built-in ls emulation, which supports a subset of the switches.
+(if (executable-find "gls")
+    (setq insert-directory-program (executable-find "gls")
+          dired-listing-switches "-aBhl --group-directories-first")
+  (setopt ls-lisp-use-insert-directory-program nil
+          ls-lisp-dirs-first t)
+  (setq dired-listing-switches "-aBhl"))
 
-;; use same buffer when going up and down
-(put 'dired-find-alternate-file 'disabled nil)
-
-;; Automatically run new async shell command without asking
-(setq async-shell-command-buffer 'new-buffer)
-
-;; hide details (details can be shown using "(")
-(add-hook 'dired-mode-hook
-      (lambda ()
-        (dired-hide-details-mode)))
-
-(define-key dired-mode-map (kbd "RET") 'dired-find-alternate-file) ;; go down
-(define-key dired-mode-map (kbd "^") (lambda () (interactive) (find-alternate-file ".."))) ;; go up
+(use-package dired
+  :ensure nil
+  :defer t
+  :custom
+  ;; reuse the same buffer when going up (^) and down (RET)
+  (dired-kill-when-opening-new-dired-buffer t)
+  :hook (dired-mode . dired-hide-details-mode) ;; show details using "("
+  :bind (:map dired-mode-map
+              ("RET" . dired-find-alternate-file))
+  :config
+  (put 'dired-find-alternate-file 'disabled nil))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; eshell
+;; terminal
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(add-hook
- 'eshell-mode-hook
- (lambda ()
-   (setq pcomplete-cycle-completions nil)))
+;; vterm compiles a native module on first use (needs cmake: brew install cmake).
+(use-package vterm
+  :ensure t
+  :commands vterm
+  :custom
+  (vterm-max-scrollback 10000)
+  (vterm-kill-buffer-on-exit t)
+  ;; keys Emacs keeps instead of sending them to the shell: vterm's defaults
+  ;; plus the function-key menus from custom.el (<f2> new terminal, <f3>/<f4> hydras)
+  (vterm-keymap-exceptions '("C-c" "C-x" "C-u" "C-g" "C-h" "C-l" "M-x" "M-o"
+                             "C-y" "M-y" "<f2>" "<f3>" "<f4>")))
 
+;; `git commit' etc. in vterm open the file in this Emacs instead of starting
+;; a nested one (with-editor comes with magit).
+(use-package with-editor
+  :ensure t
+  :hook (vterm-mode . with-editor-export-editor))
 
+;;; settings.el ends here

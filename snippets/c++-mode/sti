@@ -1,5 +1,5 @@
 # -*- mode: snippet -*-
-# name: cin
+# name: cin (sti)
 # key: sti
 # --
 std::cin >>

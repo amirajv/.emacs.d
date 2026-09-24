@@ -1,5 +1,5 @@
 # -*- mode: snippet -*-
-# name: remove
+# name: remove (rmv)
 # key: rmv
 # --
 auto pos = std::remove(std::begin(${1:container}), std::end($1), $2);

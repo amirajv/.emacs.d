@@ -1,5 +1,5 @@
 # -*- mode: snippet -*-
-# name: accumulate
+# name: accumulate (acm)
 # key: acm
 # --
 auto sum = std::accumulate(std::begin(${1:container}), std::end($1), 0);

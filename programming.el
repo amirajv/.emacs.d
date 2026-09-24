@@ -1,96 +1,171 @@
-(require 'magit)
-(require 'git-link)
-(require 'yaml-mode)
-(require 'csv-mode)
-(require 'nxml-mode)
-(require 'sgml-mode)
-(require 'org)
-(require 'org-bullets)
-(require 'elpy)
-(require 'projectile)
-(require 'web-mode)
-(require 'gitignore-mode)
-(require 'gitconfig-mode)
-(require 'gitattributes-mode)
+;;; programming.el --- language and tooling configuration  -*- lexical-binding: t; -*-
 
-;; git-link
-(setq git-link-use-single-line-number nil)
+;; Packages are installed by `use-package' (:ensure t); built-ins use
+;; :ensure nil.  Everything is deferred until the relevant mode/command is used.
 
-;; c/c++
-(setq c-default-style
-      '((c-mode . "linux") 
-        (c++-mode . "linux"))
-      c-basic-offset 2)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; git
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; web mode 
-(add-to-list 'auto-mode-alist '("\\.js\\'" . web-mode))
-(add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
+(use-package magit
+  :ensure t
+  :defer t
+  :custom
+  (magit-refresh-status-buffer nil) ;; to make things faster
+  :config
+  ;; magit adds this hook when it loads, so it has to be removed afterwards
+  (remove-hook 'server-switch-hook 'magit-commit-diff)) ;; to make things faster
 
-;; html mode
-(setq sgml-quick-keys 'close) ;; autoclose tags
+;; git change markers in the fringe (and in dired / after magit refreshes)
+(use-package diff-hl
+  :ensure t
+  :hook ((after-init . global-diff-hl-mode)
+         (dired-mode . diff-hl-dired-mode)
+         (magit-pre-refresh . diff-hl-magit-pre-refresh)
+         (magit-post-refresh . diff-hl-magit-post-refresh)))
 
-;; yaml mode
-(add-to-list 'auto-mode-alist '("\\.yml\\'" . yaml-mode))
-(add-to-list 'auto-mode-alist '("\\.yaml\\'" . yaml-mode))
-(add-to-list 'auto-mode-alist '("\\.gitviews\\'" . yaml-mode))
+(use-package git-link
+  :ensure t
+  :commands (git-link git-link-commit git-link-homepage)
+  :custom
+  (git-link-use-single-line-number nil))
+
+;; provides gitignore-mode, gitconfig-mode, gitattributes-mode, ...
+(use-package git-modes
+  :ensure t
+  :defer t)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; file formats
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; c/c++: the "linux" style forces c-basic-offset to 8, so derive a 2-space one
+(setq c-default-style '((c-mode . "my-linux")
+                        (c++-mode . "my-linux")
+                        (other . "gnu")))
+(with-eval-after-load 'cc-mode
+  (c-add-style "my-linux" '("linux" (c-basic-offset . 2))))
+
+;; language server for C/C++ (clangd ships with the Xcode command line tools;
+;; put a compile_commands.json at the project root)
+(use-package eglot
+  :ensure nil
+  :hook ((c-mode c++-mode) . eglot-ensure)
+  :custom
+  (eglot-autoshutdown t)
+  :init
+  (setq read-process-output-max (* 1024 1024))) ;; bigger reads from language servers
+
+(use-package web-mode
+  :ensure t
+  :mode ("\\.js\\'" "\\.html?\\'"))
+
+(use-package sgml-mode
+  :ensure nil
+  :defer t
+  :custom
+  (sgml-quick-keys 'close)) ;; autoclose tags
+
+(use-package nxml-mode
+  :ensure nil
+  :defer t
+  :custom
+  (nxml-slash-auto-complete-flag t)) ;; typing / after < closes the tag
+
+;; README.md, CLAUDE.md, ...  (preview needs `markdown-command', e.g. pandoc)
+(use-package markdown-mode
+  :ensure t
+  :mode ("\\.md\\'" . gfm-mode))
+
+(use-package yaml-mode
+  :ensure t
+  :mode ("\\.ya?ml\\'" "\\.gitviews\\'"))
 
 ;; csv-mode: use csv-align-mode for aligning
-(add-to-list 'auto-mode-alist '("\\.[Cc][Ss][Vv]\\'" . csv-mode))
+(use-package csv-mode
+  :ensure t
+  :mode ("\\.[Cc][Ss][Vv]\\'"))
 
-;; XML editing
-(setq nxml-slash-auto-complete-flag t) ;; Typing / after < will close the tag automatically.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; org
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; org-mode
-(add-to-list 'auto-mode-alist '("\\.org\\'" . org-mode))
-(add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
+(use-package org
+  :ensure nil
+  :defer t
+  :hook ((org-mode . org-indent-mode)
+         ;; make windmove work in Org mode
+         (org-shiftup-final . windmove-up)
+         (org-shiftleft-final . windmove-left)
+         (org-shiftdown-final . windmove-down)
+         (org-shiftright-final . windmove-right))
+  :custom
+  (org-support-shift-select 'always)
+  (org-startup-truncated nil))
 
-;; Make windmove work in Org mode:
-(add-hook 'org-shiftup-final-hook 'windmove-up)
-(add-hook 'org-shiftleft-final-hook 'windmove-left)
-(add-hook 'org-shiftdown-final-hook 'windmove-down)
-(add-hook 'org-shiftright-final-hook 'windmove-right)
-(add-hook 'org-mode-hook 'org-indent-mode)
-(setq org-support-shift-select 'always)
-(setq org-startup-truncated 'nil)
+(use-package org-bullets
+  :ensure t
+  :hook (org-mode . org-bullets-mode))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; projectile
-(projectile-mode +1)
-(projectile-global-mode)
-(setq projectile-completion-system 'ivy)
-(setq projectile-enable-caching t)
-(setq projectile-sort-order 'recentf)
-(define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
-(setq projectile-switch-project-action (lambda ()
-                                         (projectile-run-eshell t)))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;; projectile 3.x has no `ivy' completion option: it uses `completing-read',
+;; which `ivy-mode' already takes over.
+(use-package projectile
+  :ensure t
+  :hook (after-init . projectile-mode)
+  :bind-keymap ("C-c p" . projectile-command-map)
+  :custom
+  (projectile-enable-caching t)
+  (projectile-sort-order 'recentf)
+  (projectile-switch-project-action (lambda () (projectile-run-vterm t))))
 
-;; magit dependencies: dash, transient, with-editor, 
-;; 11/11/21: libgit had some issues.
-;; decided to remove it and indicate it in default.mk to not compile it
-
-(setq magit-refresh-status-buffer nil) ;; to make things faster
-(remove-hook 'server-switch-hook 'magit-commit-diff) ;; to make things faster
-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; python
-;; elpy: dependencies: s.el, pyvenv, company, projectile, yasnippet
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; python virtual environments: create one in ~/.venv/<name>, then M-x pyvenv-workon
+(use-package pyvenv
+  :ensure t
+  :init
+  (setenv "WORKON_HOME" (expand-file-name "~/.venv/"))
+  :config
+  (pyvenv-mode 1))
+
+;; indentation guides (used by elpy)
+(use-package highlight-indentation
+  :ensure t
+  :defer t
+  :custom-face
+  (highlight-indentation-face ((t (:background "gray20"))))
+  (highlight-indentation-current-column-face ((t (:background "#c3b3b3")))))
+
+(use-package python
+  :ensure nil
+  :defer t
+  :config
+  ;; ipython, from PATH or from the ~/.venv used by elpy
+  (let ((ipython (or (executable-find "ipython")
+                     (let ((venv-ipython (expand-file-name "~/.venv/bin/ipython")))
+                       (and (file-executable-p venv-ipython) venv-ipython)))))
+    (when ipython
+      (setq python-shell-interpreter ipython
+            python-shell-interpreter-args "-i --simple-prompt"))))
+
+;; elpy: dependencies: s.el, pyvenv, company, highlight-indentation, yasnippet
 ;; config: M-x elpy-config
-;; create a virtual environment
+(use-package elpy
+  :ensure t
+  :commands elpy-enable
+  :init
+  (with-eval-after-load 'python (elpy-enable))
+  :custom
+  (elpy-rpc-virtualenv-path 'current)
+  :config
+  (let ((venv-python (expand-file-name "~/.venv/bin/python")))
+    (when (file-executable-p venv-python)
+      (setq elpy-rpc-python-command venv-python))))
 
-;; python virtual environment
-(setenv "WORKON_HOME" "~/.venv/")
-(pyvenv-mode 1)
-
-(load "highlight-indentation")
-(set-face-background 'highlight-indentation-face "gray20")
-(set-face-background 'highlight-indentation-current-column-face "#c3b3b3")
-
-(elpy-enable)
-(setq elpy-rpc-python-command "~/.venv/bin/python")
-(setq elpy-rpc-virtualenv-path 'current)
-(remove-hook 'flymake-diagnostic-functions 'flymake-proc-legacy-flymake)
-
-;; ipython
-(setq python-shell-interpreter "ipython"
-      python-shell-interpreter-args "-i --simple-prompt")
-
-
+;;; programming.el ends here

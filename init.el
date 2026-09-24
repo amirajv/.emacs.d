@@ -1,28 +1,16 @@
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(org-startup-truncated nil)
- '(warning-suppress-types '(((unlock-file)))))
+;;; init.el --- Emacs configuration entry point  -*- lexical-binding: t; -*-
 
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
+;; Keep Customize output out of the hand-written files.
+(setq custom-file (expand-file-name "custom-vars.el" user-emacs-directory))
+(when (file-exists-p custom-file)
+  (load custom-file nil 'nomessage))
 
-;; libraries
-(let ((default-directory  "~/.emacs.d/lib/")) 
-  (normal-top-level-add-to-load-path '("."))
-  (normal-top-level-add-subdirs-to-load-path))
+(dolist (file '("init-packages"
+                "theme"
+                "settings"
+                "programming"
+                "custom"
+                "django"))
+  (load (expand-file-name file user-emacs-directory) nil 'nomessage))
 
-
-;; load other el files
-(load-file "~/.emacs.d/init-packages.el")
-(load-file "~/.emacs.d/theme.el")
-(load-file "~/.emacs.d/settings.el")
-(load-file "~/.emacs.d/programming.el")
-(load-file "~/.emacs.d/custom.el")
-(load-file "~/.emacs.d/django.el")
+;;; init.el ends here
